@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 using namespace std;
+//SOC0073
 
 class Person{
 private:
