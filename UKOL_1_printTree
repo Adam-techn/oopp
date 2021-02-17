@@ -1,0 +1,99 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+class Person{
+private:
+        string _name;
+        string _secondName;
+        int _year;
+
+        Person* _father;
+        Person* _mother;
+
+
+
+public:
+Person(string name, string secondName,int year)
+{
+    this->_name = name;
+    this->_secondName = secondName;
+    this->_year= year;
+    this->_father=NULL;
+    this->_mother=NULL;
+}
+
+
+
+~Person()
+{
+
+}
+
+void SetFather(Person* father){
+    this->_father = father;
+}
+
+void SetMother(Person* mother){
+    this->_mother = mother;
+}
+
+string GetFullName(){
+    return this->_name + " " + this->_secondName;
+}
+
+void Print(){
+    time_t ttime = time(0);
+    tm *local_time = localtime(&ttime);
+    cout << this-> GetFullName() << "["<< (1900+ local_time->tm_year)-(this->_year) << "]"<<endl;
+// je to od roku 1900, musi se
+}
+
+void printTree(){
+
+        this->_mother->Print();
+        this->_father->Print();
+        if((this->_father!=NULL)||(this->_mother!=NULL)){
+        this->_father->printTree();
+        this->_mother->printTree();    
+
+        }
+        
+        else
+        {
+            return;
+        }
+        
+        
+        
+    
+  
+}
+
+
+
+};
+int main(){
+    Person * me = new Person("Martin","Malat",1991);
+    Person* person2= new Person("Karel","Malat",1960);
+    Person* person3= new Person("Josefinka","Malatova",1970);
+    Person* person4= new Person("Adam","Pelynek",1945);
+    Person* person5= new Person("Jana","Sanicova",1970);
+    Person* person6= new Person("Lukas","Kalik",1934);
+    Person* person7= new Person("Jana","Sanicovakk",1925);
+
+
+    me->SetFather(person2);
+    me->SetMother(person3);
+    person2->SetFather(person4);
+    person2->SetMother(person5);
+    
+    person3->SetFather(person6);
+    person3->SetMother(person7);
+    
+    person4->SetFather(person6);
+   // cout << person1->GetFullName();
+
+    me->Print();
+    me->printTree(); //vrati pod sebou ja otec
+}
