@@ -1,0 +1,284 @@
+#include <iostream>
+using namespace std;
+//email from email to 
+// reply 
+
+//START of class Person
+class Person
+{
+private:
+int _id=0;
+string _name;
+string _surename;
+
+public:
+Person(string name,string surename,int id){
+this->_id=id;
+this->_name= name;
+this->_surename=surename;
+}
+~Person() 
+{
+
+}
+//-------------METHODS-----------------------------
+
+//GETTER
+int getID()
+{
+    return(this->_id);
+}
+
+string getSureName()
+{
+    return(this->_surename);
+}
+string getName()
+{
+    return(this->_name);
+}
+};
+//End of class Person
+
+// Class Users for making person with id, limited with maxvalue and id is know as _actual person
+//START of Class Users
+class Users
+{  
+    private:
+
+    int _actualPerson; //id
+    int _maxvalue;
+    Person ** _person;
+
+    public:
+
+    Users(int max){
+        this-> _maxvalue= max;
+        this->_person= new Person*[max];
+        this->_actualPerson =0;
+    }
+
+
+    //--------------METHODS---------------
+    Person* addPerson(string name,string surename)
+    { 
+        if(this->_actualPerson<this->_maxvalue)
+        {
+               return(this->_person[this->_actualPerson]= new Person(name,surename,this->_actualPerson));
+                 this->_actualPerson++;  
+        }
+        else 
+        {   
+            return(nullptr);
+            cout<< "You try to push limits :)"<<endl;
+        }
+    }
+    
+// return current person from users with current id
+    Person * get_person_withid(int a)
+    {
+        
+        return(this->_person[a]);
+    }
+   
+// for checking if class works
+    void printPersonwithId(int a)
+    {  
+        cout<<this->_person[a]->getName()+ " " + this->_person[a]->getSureName()<< endl;
+        
+        
+    }
+};
+//END of class Users
+class Message
+{
+    private:    
+
+    Person *prijemce;
+    Person *odesilatel;
+    string email_message;
+    int id;
+    public:
+    Message(Person *odesilatel,Person *prijemce,string email_message,int id)
+    {
+        this->prijemce=prijemce;
+        this->odesilatel=odesilatel;
+        this->email_message=email_message;
+        this->id =id;
+    }
+   int getid()
+   {
+       return(this->id);
+   }
+    Person * getprijemce()
+    {
+        return(this->prijemce);
+    }
+
+    Person * getodesilatel()
+    {
+        return(this->odesilatel);
+    }
+   string get_zprava()
+   {
+       return(this->email_message);
+   }
+    //prints for communication
+    void printFROM()
+    {
+        cout<<endl<<"From: "<< this->odesilatel->getName() +" "+ this->odesilatel->getSureName() <<endl;
+    }
+
+    void printTO()
+    {
+        cout<<"To: "<<this->prijemce->getName() +" "+ this->prijemce->getSureName() <<endl;
+    }
+
+    void printEmailMESSAGE()
+    {
+        cout<<"Email message: "<<this->email_message<<endl<<endl;
+    }
+
+    
+
+
+};// END of class MESSAGE
+
+//START of class EmailServer
+class EmailServer
+{
+    private:
+
+    int _messagelimit; //limit zprav
+    int _actualmessage;
+    Users *_user;
+    Message **_message; //databaze pro zpravy
+
+    public:
+
+    EmailServer(Users *user,int messagelimit)
+    {
+        this->_messagelimit=messagelimit;
+        this->_message= new Message*[messagelimit];
+        this->_user=user;
+
+    }
+    
+    void addMessage(Person *odesilatel,Person *prijemce,string message) //predame konkrentiho uzivatele , v parametrech predame inicial
+    {
+    
+            this->_message[_actualmessage]= new Message(odesilatel,prijemce,message,this->_actualmessage);
+            this-> _actualmessage++;
+    
+    
+    }
+
+    
+    
+    //getter
+    Message *get_message(int a)
+    {
+        return (this->_message[a]);
+    }
+
+    void getMessage(Person *person)
+    {
+        
+        this->_message[_actualmessage];
+    }
+    
+    void printcomunication(int id)
+    {
+       this->_message[id]->printFROM();
+       this->_message[id]->printTO();
+       this->_message[id]->printEmailMESSAGE(); 
+        
+    }
+//need to add who are odesilatel
+    void sendEMail(Person *odesilatel)
+    {
+        for(int i=0;i<this->_messagelimit;i++)
+        {
+            if(this->_message[i]->getodesilatel() == odesilatel)
+            {
+                 cout<<endl<<"You sent:"<<endl;
+                printcomunication(i);
+        
+            }  
+            else
+            {
+                
+            }
+        }
+
+    }
+    // write emails which you accept
+    void acceptEmail(Person *prijemce)
+    {
+        for(int i=0;i<this->_messagelimit;i++)
+        {
+            if(this->_message[i]->getodesilatel() == prijemce)
+            {
+                cout<<endl<<"You accept:"<<endl;
+                /*this->_message[i]->printFROM();
+                this->_message[i]->printTO();
+                this->_message[i]->printEmailMESSAGE();*/
+                printcomunication(i);
+            }  
+            
+        }
+        
+
+    }
+};// END of class EmailServer
+
+
+int main()
+{
+    Users *google_users= new Users(10);
+    
+    EmailServer *Google = new EmailServer(google_users,100000);
+    
+
+     google_users->addPerson("Pepa","Pach");
+     google_users->addPerson("Tomas","lmah");
+   google_users->addPerson("Antolf","Sama");
+     google_users->addPerson("Keksik","Sama");
+    
+      google_users->printPersonwithId(0);
+       google_users->printPersonwithId(1);
+        google_users->printPersonwithId(2);
+         google_users->printPersonwithId(3);
+
+         
+   // Google->addMessage(google_users->addPerson("Pepik","Kalus"),google_users->addPerson("Tomas","Lach"),"Ahoj tome");
+                                        // odesilatel  (0)                     prijemce (1)                    zprava
+    //Google->printcomunication(0);// odesilatel (0 ) prijemce (1)
+    
+   // Google->addMessage(google_users->addPerson("Karel","Kalus"),google_users->addPerson("Kajetan","Lach"),"Ahoj tome");
+   //Google->printcomunication(1);
+    Google->sendEMail(google_users->get_person_withid(0));
+     Google->sendEMail(google_users->get_person_withid(2));
+    Google->acceptEmail(google_users->get_person_withid(1));
+    
+   //printing with id, (id is like a number of email)
+   
+//fixing bin
+
+  //  google_users->addPerson("Adam","Pach");//0
+   // google_users->addPerson("Adam","kach");//1
+  // google_users->addPerson("Adam","lach");//2
+    
+    //Person * me = google_users->get_person_withid(0);
+  //  Person *responser = google_users->get_person_withid(2);
+  //Google->addMessage(me,responser,"ahoj pepiku");
+ // Google->sendEMail(google_users->get_person_withid(0));
+    //cout <<zprava->get_zprava()<<endl;
+    //Message *zprava= Google->get_message(0);
+    //google_users->printPersonwithId(0);
+    //google_users->printPersonwithId(1);
+    //google_users->printPersonwithId(2);
+   
+
+
+}
