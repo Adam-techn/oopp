@@ -1,0 +1,318 @@
+#include <iostream>
+#include <iomanip>
+
+#define A_LETTER 97
+
+using namespace std;
+
+
+class Person {
+private:
+    static int _objectcount;
+    int max_count;
+    string _name;
+    string _secondName;
+    int _year;
+
+    Person *_father;
+    Person *_mother;
+
+
+public:
+    Person(string name, string secondName, int year) {
+        this->_name = name;
+        this->_secondName = secondName;
+        this->_year = year;
+        this->_father = NULL;
+        this->_mother = NULL;
+        Person::_objectcount++;// pristup ke statickym promennym metodam
+    }
+
+
+    ~Person() {
+        Person::_objectcount--;
+    }
+
+    static int GetID() {
+        return Person::_objectcount;
+    }
+
+    void SetFather(Person *father) {
+        this->_father = father;
+    }
+
+    void SetMother(Person *mother) {
+        this->_mother = mother;
+    }
+
+    string GetFullName() {
+        return this->_name + " " + this->_secondName;
+    }
+
+    string GetName() {
+
+        return this->_name;
+
+    }
+
+    string GetSecondName() {
+        return (this->_secondName);
+    }
+
+    void Print() {
+
+    }
+
+
+    void printTree() {
+
+        this->_mother->Print();
+        this->_father->Print();
+        if ((this->_father != NULL) || (this->_mother != NULL)) {
+            this->_father->printTree();
+            this->_mother->printTree();
+
+        } else {
+            return;
+        }
+
+
+
+
+
+        //dad=dad->_father;
+
+
+
+    }
+
+
+};
+
+int Person::_objectcount = 0;
+
+
+//trida person
+
+class Student {
+private:    //vzit prvni pismeno malym
+    //ziskatindex v letters
+    //incrementovat letters
+    //spojit jako string scislem z letter
+    //login = person getlogin(persongetsecname)
+
+    int semestr;
+    int _credits;
+    string _login;
+    Person *_student;
+
+
+public:
+    static int UID[26];
+
+    Student(Person *student) {
+        this->_student = student;
+        this->_credits = 0;
+        this->semestr = 0;
+    }
+
+    ~Student() {
+
+
+    }
+
+    void setlogin(string login) {
+        this->_login = login;
+    }
+
+    void printLogin() {
+        cout << this->_login << endl;
+    }
+
+    Person *getPerson() {
+        return (this->_student);
+    }
+
+    int getCredits() {
+        return (this->_credits);
+    }
+
+    int getSemestr() {
+        return (this->semestr);
+    }
+
+    void addSemestr() {
+        this->semestr++;
+    }
+
+    void addCredit(int credit) {
+
+        this->_credits += credit;
+    }
+
+    void Print() {
+        this->_student->Print();
+        cout << "Number of credits: " << this->_credits << endl;
+        cout << "Login: ";
+        this->printLogin();
+        cout << "-----------" << endl;
+    }
+
+    void newYear() {
+
+    }
+
+    Person *FindStudent(Person *student) {
+        if (this->_student == student) {
+            return (this->_student);
+        }
+        return nullptr;
+    }
+};
+
+int Student::UID[26] = {0};
+
+class School {
+private:
+    string _name;
+    int _capacity;
+    int _count;
+    Student **_students;
+
+
+public:
+    School(string name, int capacity) {
+        this->_name = name;
+        this->_capacity = capacity;
+        this->_count = 0;
+        this->_students = new Student *[capacity];
+        //konstruktor
+    }
+
+    ~School() {
+        delete[] _students;
+    }
+
+    void addstudent(Person *newStudent) {
+        Student *student = new Student(newStudent);
+        int id = _count;
+
+        //nove pole s novou kapacitou
+        //z 5 udelame kapacitu 10
+        //todo vyresit preteceni kapacity -- Solved
+        if (this->_count + 1 == _capacity) {
+            this->_capacity *= 2;
+            Student **tmpContainer = new Student *[this->_capacity];
+            for (size_t i = 0; i < this->_capacity / 2; i++) {
+                tmpContainer[i] = this->_students[i];
+            }
+            delete[] this->_students;
+            this->_students = tmpContainer;
+        }
+
+        this->_students[_count] = student;
+        this->_count++;
+        this->setStudentLogin(student, newStudent);
+    }
+
+    // May be added parameter bool isStudent and find Student object based on person data
+    void setStudentLogin(Person *person) {
+        addstudent(person);
+        setStudentLogin(FindStudent(person->GetName(), person->GetSecondName()), person);
+    }
+
+    void setStudentLogin(Student *student, Person *person = nullptr) {
+
+        Person *studentPerson = nullptr;
+        if (person != nullptr) {
+            studentPerson = person;
+        } else {
+            studentPerson = student->getPerson();
+        }
+
+        int studentUID = 0;
+        int fstLetter = tolower(person->GetSecondName()[0]);
+        Student::UID[fstLetter - A_LETTER]++;
+        setLoginBasedOnUID(student, fstLetter);
+    }
+
+    void setLoginBasedOnUID(Student *student, int fstLetter) {
+        int uid = Student::UID[fstLetter - A_LETTER], zeroCout;
+        string stringUid = "";
+
+        if (uid / 100 > 0) {
+            zeroCout = 0;
+        } else if (uid / 10 > 0) {
+            zeroCout = 1;
+        } else {
+            zeroCout = 2;
+        }
+
+        stringUid.insert(stringUid.begin(), zeroCout, '0');
+        stringUid + to_string(uid);
+        student->setlogin(char(fstLetter) + stringUid + to_string(uid));
+    }
+
+    void PrintStudents() {
+        //   cout << "Kapacita je :" << this->_capacity <<endl;
+        //  cout << "Pocet studujicich je "<< this ->_count<<endl;
+
+        for (size_t i = 0; i < _count; i++) {
+            cout << "Student cislo: " << i << endl;
+            _students[i]->Print();
+        }
+    }
+
+    Student *FindStudent(string Name, string SecondName) {
+
+        for (size_t i = 0; i < _count; i++) {
+            Student *result = _students[i];
+            Person *p = result->getPerson();
+            if ((p->GetName() == Name) && (p->GetSecondName() == SecondName)) {
+
+                return (result);
+            }
+        }
+        return nullptr;
+    }
+
+    void nextSemester() {
+
+        for (size_t i = 0; i < this->_count; i++) {
+            if ((this->_students[i]->getCredits() >= this->_students[i]->getCredits() * 30) &&
+                (this->_students[i]->getSemestr() < 6)) {
+                _students[i]->addSemestr();
+            }
+        }
+    }
+
+    /*FinalExam()
+    {
+        if() muzou ke statnicim
+
+    }*/
+
+
+    void RemoveStudent(Person *remove) {
+
+        remove;
+        this->_count--;
+    }
+
+};
+
+
+int main() {
+    Person *me = new Person("Adam", "Soch", 1223);
+    Person *you = new Person("Adam", "koch", 5223);
+    Person *it = new Person("Adam", "loch", 1223);
+    Person *anotherS = new Person("Adam", "Slon", 7782);
+
+    School *internationalSchool = new School("International", 2);
+    internationalSchool->addstudent(me);
+    internationalSchool->addstudent(you);
+    internationalSchool->addstudent(it);
+    internationalSchool->addstudent(anotherS);
+
+    internationalSchool->PrintStudents();
+}
